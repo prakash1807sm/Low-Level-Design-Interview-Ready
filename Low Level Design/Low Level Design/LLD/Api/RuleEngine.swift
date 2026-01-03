@@ -12,78 +12,32 @@ class RuleEngine {
         if board is TicTacToeBoard {
             let board1 : TicTacToeBoard = board as! TicTacToeBoard
             
-            var firstCharacter: String = ""
-            //rows
-            var rowComplete: Bool = true
-            for i in 0..<3 {
-                firstCharacter = board1.getSymbol(i, 0)
-                rowComplete = firstCharacter != "-"
-                if firstCharacter != "-" {
-                    for j in 1..<3 {
-                        if(board1.getSymbol(i, j) != firstCharacter){
-                            rowComplete = false
-                            break
-                        }
-                    }
-                }
-                
-                if(rowComplete) {
-                    break
-                }
+            let rowWin : GameState = outerTraversal(next: { i, j in
+                return board1.getSymbol(i, j)
+            })
+            if rowWin.isOver {
+                return rowWin
             }
             
-            if rowComplete {
-                return GameState(isOver: true, winner: firstCharacter)
+            let colWin : GameState = outerTraversal(next: { i, j in
+                return board1.getSymbol(j, i)
+            })
+            if colWin.isOver {
+                return colWin
             }
             
-            //columns
-            var colComplete: Bool = true
-            for i in 0..<3 {
-                firstCharacter = board1.getSymbol(0, i)
-                colComplete = firstCharacter != "-"
-                if firstCharacter !=  "-" {
-                    for j in 1..<3 {
-                        if(board1.getSymbol(j, i) != firstCharacter){
-                            colComplete = false
-                            break
-                        }
-                    }
-                }
-                if(colComplete) {
-                    break
-                }
+            let diagWin: GameState = findDiagStreak(traversal: { i in
+                return board1.getSymbol(i, i)
+            })
+            if diagWin.isOver {
+                return diagWin
             }
             
-            if colComplete {
-                return GameState(isOver: true, winner: firstCharacter)
-            }
-            
-            //diagonals
-            firstCharacter = board1.getSymbol(0, 0)
-            var diagComplete: Bool = firstCharacter != "-"
-            for i in 0..<3 {
-                if(firstCharacter != "-" && board1.getSymbol(i, i) != firstCharacter){
-                    diagComplete = false
-                    break
-                }
-            }
-            
-            if diagComplete {
-                return GameState(isOver: true, winner: firstCharacter)
-            }
-            
-            //rev diagonal
-            firstCharacter = board1.getSymbol(0, 2)
-            var revDiagComplete: Bool = firstCharacter != "-"
-            for i in 0..<3 {
-                if(firstCharacter != "-" && board1.getSymbol(i, 2-i) != firstCharacter){
-                    revDiagComplete = false
-                    break
-                }
-            }
-            
-            if revDiagComplete {
-                return GameState(isOver: true, winner: firstCharacter)
+            let revDiagWin: GameState = findDiagStreak(traversal: { i in
+                return board1.getSymbol(i, 2-i)
+            })
+            if revDiagWin.isOver {
+                return revDiagWin
             }
             
             var countFilledCells : Int = 0
@@ -102,6 +56,41 @@ class RuleEngine {
         } else {
             throw GameError.illegalArgumentException("Board is not of tic tac toe type")
         }
+    }
+    
+    private func findDiagStreak(traversal: (Int) -> String) -> GameState {
+        return traverse(traversal: traversal)
+    }
+    
+    private func outerTraversal(next: @escaping (Int, Int) -> String) -> GameState {
+        var result = GameState(isOver: false, winner: "-")
+        for i in 0..<3 {
+            let ii = i
+            let traversal: GameState = traverse(traversal: { j in
+                return next(ii, j)
+            })
+            if traversal.isOver {
+                result = traversal
+                break
+            }
+        }
+        return result
+    }
+    
+    private func traverse(traversal: (Int) -> String) -> GameState {
+        var result = GameState(isOver: false, winner: "-")
+        var possibleStreak = true
+        for j in 0..<3 {
+            if(traversal(j) == "-" || traversal(j) != traversal(0)){
+                possibleStreak = false
+                break
+            }
+        }
+        
+        if possibleStreak {
+            result =  GameState(isOver: true, winner: traversal(0))
+        }
+        return result
     }
 }
 
