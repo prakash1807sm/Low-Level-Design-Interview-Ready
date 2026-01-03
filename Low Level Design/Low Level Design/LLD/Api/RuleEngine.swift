@@ -12,49 +12,32 @@ class RuleEngine {
         if board is TicTacToeBoard {
             let board1 : TicTacToeBoard = board as! TicTacToeBoard
             
-            var firstCharacter: String = ""
-            
-            let rowWin : GameState? = isVictory(next: { i, j in
+            let rowWin : GameState? = findStreak(next: { i, j in
                 return board1.getSymbol(i, j)
             })
             if rowWin != nil {
                 return rowWin!
             }
             
-            
-            let colWin : GameState? = isVictory(next: { i, j in
+            let colWin : GameState? = findStreak(next: { i, j in
                 return board1.getSymbol(j, i)
             })
             if colWin != nil {
                 return colWin!
             }
-        
-            //diagonals
-            firstCharacter = board1.getSymbol(0, 0)
-            var diagComplete: Bool = firstCharacter != "-"
-            for i in 0..<3 {
-                if(firstCharacter != "-" && board1.getSymbol(i, i) != firstCharacter){
-                    diagComplete = false
-                    break
-                }
+            
+            let diagWin: GameState? = findDiagStreak(diag: { i in
+                return board1.getSymbol(i, i)
+            })
+            if diagWin != nil {
+                return diagWin!
             }
             
-            if diagComplete {
-                return GameState(isOver: true, winner: firstCharacter)
-            }
-            
-            //rev diagonal
-            firstCharacter = board1.getSymbol(0, 2)
-            var revDiagComplete: Bool = firstCharacter != "-"
-            for i in 0..<3 {
-                if(firstCharacter != "-" && board1.getSymbol(i, 2-i) != firstCharacter){
-                    revDiagComplete = false
-                    break
-                }
-            }
-            
-            if revDiagComplete {
-                return GameState(isOver: true, winner: firstCharacter)
+            let revDiagWin: GameState? = findDiagStreak(diag: { i in
+                return board1.getSymbol(i, 2-i)
+            })
+            if revDiagWin != nil {
+                return revDiagWin!
             }
             
             var countFilledCells : Int = 0
@@ -75,8 +58,22 @@ class RuleEngine {
         }
     }
     
+    private func findDiagStreak(diag: (Int) -> String) -> GameState? {
+        var possibleStreak = true
+        for i in 0..<3 {
+            if(diag(i) == "-" || diag(i) != diag(0)){
+                possibleStreak = false
+                break
+            }
+        }
+        
+        if possibleStreak {
+            return GameState(isOver: true, winner: diag(0))
+        }
+        return nil
+    }
     
-    public func isVictory(next: (Int, Int) -> String) -> GameState? {
+    private func findStreak(next: (Int, Int) -> String) -> GameState? {
         for i in 0..<3 {
             var possibleStreak = true
             for j in 1..<3 {
