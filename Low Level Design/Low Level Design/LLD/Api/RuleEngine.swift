@@ -14,9 +14,7 @@ class RuleEngine {
             
             var firstCharacter: String = ""
             
-            let rowWin : GameState? = isVictory(startsWith: { i in
-                return board1.getSymbol(i, 0)
-            }, next: { i, j in
+            let rowWin : GameState? = isVictory(next: { i, j in
                 return board1.getSymbol(i, j)
             })
             if rowWin != nil {
@@ -24,9 +22,7 @@ class RuleEngine {
             }
             
             
-            let colWin : GameState? = isVictory(startsWith: { i in
-                return board1.getSymbol(0, i)
-            }, next: { i, j in
+            let colWin : GameState? = isVictory(next: { i, j in
                 return board1.getSymbol(j, i)
             })
             if colWin != nil {
@@ -80,7 +76,7 @@ class RuleEngine {
     }
     
     
-    public func isVictory(startsWith: (Int) -> String, next: (Int, Int) -> String) -> GameState? {
+    public func isVictory(next: (Int, Int) -> String) -> GameState? {
         for i in 0..<3 {
             var possibleStreak = true
             for j in 1..<3 {
