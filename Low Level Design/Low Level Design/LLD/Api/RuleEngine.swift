@@ -8,6 +8,45 @@
 import Foundation
 
 class RuleEngine {
+    
+    public func getInfo(board: Board) throws -> GameInfo {
+        if board is TicTacToeBoard {
+           //Implement to detect fork
+            let gameState = try getState(board: board)
+            let players: [String] = ["X", "O"]
+            for playerSymbol in players {
+                for i in 0..<3 {
+                    for j in 0..<3 {
+                        let b: Board = board.copy()
+                        let player : Player = Player(playerSymbol: playerSymbol)
+                        try b.move(move: Move(cell: Cell(row: i, col: j), player: player))
+                        var canStillWin: Bool =  false
+                        for k in 0..<3 {
+                            for l in 0..<3 {
+                                let b1: Board = b.copy()
+                                try b1.move(move: Move(cell: Cell(row: k, col: l), player: player.flip()))
+                                
+                                if ((try getState(board: b1).winner) == player.flip().symbol()) {
+                                    canStillWin = true
+                                    break
+                                }
+                            }
+                            if canStillWin {
+                                break
+                            }
+                        }
+                        if canStillWin {
+                            return GameInfo(gameState: gameState, hasFork: true, player: player.flip())
+                        }
+                    }
+                }
+            }
+            return GameInfo(gameState: gameState, hasFork: false, player: nil)
+        } else {
+            throw GameError.illegalArgumentException("Board is not of tic tac toe type")
+        }
+    }
+    
     public func getState(board: Board) throws -> GameState {
         if board is TicTacToeBoard {
             let board1 : TicTacToeBoard = board as! TicTacToeBoard
