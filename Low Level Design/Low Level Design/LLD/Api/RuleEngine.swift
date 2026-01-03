@@ -14,49 +14,25 @@ class RuleEngine {
             
             var firstCharacter: String = ""
             
-            
-            let getRow: (Int) -> String = { i in
+            let rowWin : GameState? = isVictory(startsWith: { i in
                 return board1.getSymbol(i, 0)
-            }
-            
-            let getCol: (Int) -> String = { i in
-                return board1.getSymbol(0, i)
-            }
-            
-            let getNextRow: (Int, Int) -> String = { i, j in
+            }, next: { i, j in
                 return board1.getSymbol(i, j)
-            }
-            
-            let getNextCol: (Int, Int) -> String = { i, j in
-                return board1.getSymbol(j, i)
-            }
-            
-            let rowWin : GameState? = isVictory(startsWith: getRow, next: getNextRow)
-    
+            })
             if rowWin != nil {
                 return rowWin!
             }
             
-            //Here alternate way to reduce code is pass the closure inline
-//            let rowWinInline : GameState? = isVictory(startsWith: { i in
-//                return board1.getSymbol(i, 0)
-//            }, next: { i, j in
-//                return board1.getSymbol(i, j)
-//            })
             
-            let colWin : GameState? = isVictory(startsWith: getCol, next: getNextCol)
+            let colWin : GameState? = isVictory(startsWith: { i in
+                return board1.getSymbol(0, i)
+            }, next: { i, j in
+                return board1.getSymbol(j, i)
+            })
             if colWin != nil {
                 return colWin!
             }
-            
-            //Here alternate way to reduce code is pass the closure inline
-//            let colWinInline : GameState? = isVictory(startsWith: { i in
-//                return board1.getSymbol(0, i)
-//            }, next: { i, j in
-//                return board1.getSymbol(j, i)
-//            })
-
-            
+        
             //diagonals
             firstCharacter = board1.getSymbol(0, 0)
             var diagComplete: Bool = firstCharacter != "-"
