@@ -12,32 +12,32 @@ class RuleEngine {
         if board is TicTacToeBoard {
             let board1 : TicTacToeBoard = board as! TicTacToeBoard
             
-            let rowWin : GameState? = findStreak(next: { i, j in
+            let rowWin : GameState = outerTraversal(next: { i, j in
                 return board1.getSymbol(i, j)
             })
-            if rowWin != nil {
-                return rowWin!
+            if rowWin.isOver {
+                return rowWin
             }
             
-            let colWin : GameState? = findStreak(next: { i, j in
+            let colWin : GameState = outerTraversal(next: { i, j in
                 return board1.getSymbol(j, i)
             })
-            if colWin != nil {
-                return colWin!
+            if colWin.isOver {
+                return colWin
             }
             
-            let diagWin: GameState? = findDiagStreak(diag: { i in
+            let diagWin: GameState = findDiagStreak(traversal: { i in
                 return board1.getSymbol(i, i)
             })
-            if diagWin != nil {
-                return diagWin!
+            if diagWin.isOver {
+                return diagWin
             }
             
-            let revDiagWin: GameState? = findDiagStreak(diag: { i in
+            let revDiagWin: GameState = findDiagStreak(traversal: { i in
                 return board1.getSymbol(i, 2-i)
             })
-            if revDiagWin != nil {
-                return revDiagWin!
+            if revDiagWin.isOver {
+                return revDiagWin
             }
             
             var countFilledCells : Int = 0
@@ -58,36 +58,39 @@ class RuleEngine {
         }
     }
     
-    private func findDiagStreak(diag: (Int) -> String) -> GameState? {
-        var possibleStreak = true
+    private func findDiagStreak(traversal: (Int) -> String) -> GameState {
+        return traverse(traversal: traversal)
+    }
+    
+    private func outerTraversal(next: @escaping (Int, Int) -> String) -> GameState {
+        var result = GameState(isOver: false, winner: "-")
         for i in 0..<3 {
-            if(diag(i) == "-" || diag(i) != diag(0)){
+            let ii = i
+            let traversal: GameState = traverse(traversal: { j in
+                return next(ii, j)
+            })
+            if traversal.isOver {
+                result = traversal
+                break
+            }
+        }
+        return result
+    }
+    
+    private func traverse(traversal: (Int) -> String) -> GameState {
+        var result = GameState(isOver: false, winner: "-")
+        var possibleStreak = true
+        for j in 0..<3 {
+            if(traversal(j) == "-" || traversal(j) != traversal(0)){
                 possibleStreak = false
                 break
             }
         }
         
         if possibleStreak {
-            return GameState(isOver: true, winner: diag(0))
+            result =  GameState(isOver: true, winner: traversal(0))
         }
-        return nil
-    }
-    
-    private func findStreak(next: (Int, Int) -> String) -> GameState? {
-        for i in 0..<3 {
-            var possibleStreak = true
-            for j in 1..<3 {
-                if(next(i, j) == "-" || next(i, j) != next(i, 0)){
-                    possibleStreak = false
-                    break
-                }
-            }
-            
-            if(possibleStreak) {
-                return GameState(isOver: true, winner: next(i, 0))
-            }
-        }
-        return nil
+        return result
     }
 }
 
