@@ -19,7 +19,7 @@ class TicTacToeBoard : Board {
         if cells[cell.getRow()][cell.getCol()] ==  "-" {
             cells[cell.getRow()][cell.getCol()] = symbol
         } else {
-            throw GameError.illegalArgumentException("Cell is not empty")
+            throw GameError.illegalArgumentException("Cell is not empty, row: \(cell.getRow()), col: \(cell.getCol())")
         }
         
     }
