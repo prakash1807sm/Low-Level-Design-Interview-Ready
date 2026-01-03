@@ -13,50 +13,49 @@ class RuleEngine {
             let board1 : TicTacToeBoard = board as! TicTacToeBoard
             
             var firstCharacter: String = ""
-            //rows
-            var rowComplete: Bool = true
-            for i in 0..<3 {
-                firstCharacter = board1.getSymbol(i, 0)
-                rowComplete = firstCharacter != "-"
-                if firstCharacter != "-" {
-                    for j in 1..<3 {
-                        if(board1.getSymbol(i, j) != firstCharacter){
-                            rowComplete = false
-                            break
-                        }
-                    }
-                }
-                
-                if(rowComplete) {
-                    break
-                }
+            
+            
+            let getRow: (Int) -> String = { i in
+                return board1.getSymbol(i, 0)
             }
             
-            if rowComplete {
-                return GameState(isOver: true, winner: firstCharacter)
+            let getCol: (Int) -> String = { i in
+                return board1.getSymbol(0, i)
             }
             
-            //columns
-            var colComplete: Bool = true
-            for i in 0..<3 {
-                firstCharacter = board1.getSymbol(0, i)
-                colComplete = firstCharacter != "-"
-                if firstCharacter !=  "-" {
-                    for j in 1..<3 {
-                        if(board1.getSymbol(j, i) != firstCharacter){
-                            colComplete = false
-                            break
-                        }
-                    }
-                }
-                if(colComplete) {
-                    break
-                }
+            let getNextRow: (Int, Int) -> String = { i, j in
+                return board1.getSymbol(i, j)
             }
             
-            if colComplete {
-                return GameState(isOver: true, winner: firstCharacter)
+            let getNextCol: (Int, Int) -> String = { i, j in
+                return board1.getSymbol(j, i)
             }
+            
+            let rowWin : GameState? = isVictory(startsWith: getRow, next: getNextRow)
+    
+            if rowWin != nil {
+                return rowWin!
+            }
+            
+            //Here alternate way to reduce code is pass the closure inline
+//            let rowWinInline : GameState? = isVictory(startsWith: { i in
+//                return board1.getSymbol(i, 0)
+//            }, next: { i, j in
+//                return board1.getSymbol(i, j)
+//            })
+            
+            let colWin : GameState? = isVictory(startsWith: getCol, next: getNextCol)
+            if colWin != nil {
+                return colWin!
+            }
+            
+            //Here alternate way to reduce code is pass the closure inline
+//            let colWinInline : GameState? = isVictory(startsWith: { i in
+//                return board1.getSymbol(0, i)
+//            }, next: { i, j in
+//                return board1.getSymbol(j, i)
+//            })
+
             
             //diagonals
             firstCharacter = board1.getSymbol(0, 0)
@@ -102,6 +101,24 @@ class RuleEngine {
         } else {
             throw GameError.illegalArgumentException("Board is not of tic tac toe type")
         }
+    }
+    
+    
+    public func isVictory(startsWith: (Int) -> String, next: (Int, Int) -> String) -> GameState? {
+        for i in 0..<3 {
+            var possibleStreak = true
+            for j in 1..<3 {
+                if(next(i, j) == "-" || next(i, j) != next(i, 0)){
+                    possibleStreak = false
+                    break
+                }
+            }
+            
+            if(possibleStreak) {
+                return GameState(isOver: true, winner: next(i, 0))
+            }
+        }
+        return nil
     }
 }
 
