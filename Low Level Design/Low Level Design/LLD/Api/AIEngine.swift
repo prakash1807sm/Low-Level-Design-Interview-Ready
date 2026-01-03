@@ -33,7 +33,7 @@ class AIEngine {
         //Victorious move
         for i in 0..<3 {
             for j in 0..<3 {
-                if (board.getSymbol(i, i) == "-"){
+                if (board.getSymbol(i, j) == "-"){
                     let move: Move =  Move(cell: Cell(row: i, col: j), player: player)
                     let boardCopy : TicTacToeBoard = board.copy() as! TicTacToeBoard
                     try boardCopy.move(move: move)
@@ -47,10 +47,11 @@ class AIEngine {
         //Defensive move
         for i in 0..<3 {
             for j in 0..<3 {
-                if (board.getSymbol(i, i) == "-"){
+                if (board.getSymbol(i, j) == "-"){
                     let move: Move =  Move(cell: Cell(row: i, col: j), player: player.flip())
-                    try board.move(move: move)
-                    if ((try! ruleEngine.getState(board: board)).isOver) {
+                    let boardCopy : TicTacToeBoard = board.copy() as! TicTacToeBoard
+                    try boardCopy.move(move: move)
+                    if ((try! ruleEngine.getState(board: boardCopy)).isOver) {
                         return Move(cell: Cell(row: i, col: j), player: player)
                     }
                 }
