@@ -10,4 +10,5 @@ import Foundation
 protocol Board {
     func move(move: Move) throws
     func copy() -> Board
+    static func getName() -> String
 }

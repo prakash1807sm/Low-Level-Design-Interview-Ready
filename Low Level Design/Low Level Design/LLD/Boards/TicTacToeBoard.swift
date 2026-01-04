@@ -47,4 +47,8 @@ class TicTacToeBoard : Board {
         }
         return ticTacToeBoard
     }
+    
+    static func getName() -> String {
+        return String(describing: type(of: self))
+    }
 }
