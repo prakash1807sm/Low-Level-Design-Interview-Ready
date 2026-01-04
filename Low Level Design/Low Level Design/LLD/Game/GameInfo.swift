@@ -11,11 +11,13 @@ class GameInfo {
     private var winner: String
     private var hasFork: Bool
     private var player: Player?
+    private var numberOfMoves: Int
     
-    init(gameState: GameState, hasFork: Bool, player: Player?) {
-        self.isOver = gameState.isOver
-        self.winner = gameState.winner
+    init(isOver: Bool, winner: String, hasFork: Bool, player: Player?, numberOfMoves: Int) {
+        self.isOver = isOver
+        self.winner = winner
         self.hasFork = hasFork
         self.player = player
+        self.numberOfMoves = numberOfMoves
     }
 }

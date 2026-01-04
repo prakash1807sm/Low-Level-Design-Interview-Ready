@@ -82,12 +82,16 @@ class RuleEngine {
                             }
                         }
                         if canStillWin {
-                            return GameInfo(gameState: gameState, hasFork: true, player: player.flip())
+                            return GameInfoBuilder(isOver: gameState.isOver, winner: gameState.winner)
+                                .hasFork(hasFork: true)
+                                .player(player: player.flip())
+                                .build()
                         }
                     }
                 }
             }
-            return GameInfo(gameState: gameState, hasFork: false, player: nil)
+            return GameInfoBuilder(isOver: gameState.isOver, winner: gameState.winner)
+                .build()
         } else {
             throw GameError.illegalArgumentException("Board is not of tic tac toe type")
         }
